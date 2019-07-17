@@ -81,7 +81,10 @@
 	// 下载视频
 	for (NSIndexPath *indexPath in self.tableView.indexPathsForSelectedRows) {
 		NSString *vid = self.videoSections[indexPath.section].videos[indexPath.row].vid;
+        
+        ///先获取下载对象
         [PLVVodVideo requestVideoPriorityCacheWithVid:vid completion:^(PLVVodVideo *video, NSError *error) {
+            ///添加下载视频
             [[PLVVodDownloadManager sharedManager] downloadVideo:video];
         }];
 	}

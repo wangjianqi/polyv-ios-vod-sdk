@@ -56,7 +56,7 @@
     emptyLabel.textAlignment = NSTextAlignmentCenter;
     self.emptyView = emptyLabel;
     
-    //
+    ///下载完成回调
     [PLVVodDownloadManager sharedManager].downloadCompleteBlock = ^(PLVVodDownloadInfo *info) {
         // 刷新列表
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -164,6 +164,7 @@
     PLVDownloadCompleteInfoModel *localModel = self.downloadInfos[indexPath.row];
     
 #ifndef PLVSupportDownloadAudio
+    ///删除已经下载完成的
     [downloadManager removeDownloadWithVid:localModel.downloadInfo.vid error:nil];
 #else
     // 使用音频下载功能的客户，调用如下方法

@@ -70,6 +70,7 @@ static NSString * const PLVApplySettingKey = @"apply_preference";
         // TODO:
         
         // 下载配置参数
+        ///添加任务后是否自动开启
         downloadManager.autoStart = YES;
         downloadManager.maxRuningCount = 3;
         

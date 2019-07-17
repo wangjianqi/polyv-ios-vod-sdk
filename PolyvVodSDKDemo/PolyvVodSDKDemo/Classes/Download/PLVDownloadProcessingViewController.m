@@ -66,6 +66,7 @@
     __weak typeof(self) weakSelf = self;
     PLVVodDownloadManager *downloadManager = [PLVVodDownloadManager sharedManager];
     
+    ///获取全部下载列表
     [downloadManager requstDownloadProcessingListWithCompletion:^(NSArray<PLVVodDownloadInfo *> *downloadInfos) {
         dispatch_async(dispatch_get_main_queue(), ^{
             weakSelf.downloadInfos = downloadInfos.mutableCopy;
@@ -74,12 +75,14 @@
         });
     }];
     
-    // 所有下载完成回调
+    /// 所有下载完成回调
     downloadManager.completeBlock = ^{
         dispatch_async(dispatch_get_main_queue(), ^{
             weakSelf.queueDownloadButton.selected = NO;
         });
     };
+    
+    ///是否在下载中
     self.queueDownloadButton.selected = [PLVVodDownloadManager sharedManager].isDownloading;
     
     self.tableView.backgroundColor = [UIColor themeBackgroundColor];
@@ -111,12 +114,14 @@
         PLVDownloadProcessingCell *cell = [self.tableView dequeueReusableCellWithIdentifier:[PLVDownloadProcessingCell identifier]];
         downloadItemCellDic[info.identifier] = cell;
     }
+    
+    ///保存cell
     self.downloadItemCellDic = downloadItemCellDic;
     
     // 设置回调
     __weak typeof(self) weakSelf = self;
     for (PLVVodDownloadInfo *info in downloadInfos) {
-        // 下载状态改变回调
+        /// 下载状态改变回调
         info.stateDidChangeBlock = ^(PLVVodDownloadInfo *info) {
             PLVDownloadProcessingCell *cell = weakSelf.downloadItemCellDic[info.identifier];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -135,6 +140,7 @@
                     }break;
                     case PLVVodDownloadStatePreparingStart:
                     case PLVVodDownloadStateRunning:{
+                        ///下载中
                         cell.videoStateLable.textColor = [UIColor colorWithHex:0x4A90E2];
                         cell.videoSizeLabel.textColor = [UIColor colorWithHex:0x4A90E2];
 
@@ -142,7 +148,7 @@
                     case PLVVodDownloadStateSuccess:{
                         cell.videoStateLable.textColor = [UIColor colorWithHex:0x666666];
                         cell.videoSizeLabel.textColor = [UIColor colorWithHex:0x666666];
-
+                        ///下载成功
                         if (info.state == PLVVodDownloadStateSuccess){
                             // 下载成功，从列表中删除
                             [weakSelf handleDownloadSuccess:info];
@@ -150,6 +156,7 @@
                         
                     }break;
                     case PLVVodDownloadStateFailed:{
+                        ///下载失败
                         cell.videoStateLable.textColor = [UIColor redColor];
                         cell.videoSizeLabel.textColor = [UIColor redColor];
                     }break;
@@ -191,7 +198,7 @@
 
 #pragma mark -- handle
 - (void)handleDownloadSuccess:(PLVVodDownloadInfo *)downloadInfo{
-    //
+    ///下载成功
     [self.downloadInfos removeObject:downloadInfo];
     [self.downloadItemCellDic removeObjectForKey:downloadInfo.identifier];
     
@@ -207,10 +214,10 @@
     sender.selected = !sender.selected;
     PLVVodDownloadManager *downloadManager = [PLVVodDownloadManager sharedManager];
     if (sender.selected) {
-        // 开始队列下载
+        ///全部开始下载：队列下载
         [downloadManager startDownload];
     } else {
-        // 停止队列下载
+        ///全部停止下载：队列下载
         [downloadManager stopDownload];
     }
 }
@@ -230,7 +237,7 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex == 1){
-        // 清空下载队列
+        ///全部清空下载队列
         [[PLVVodDownloadManager sharedManager] removeAllDownloadWithComplete:^(void *result) {
             //
             [self.downloadInfos removeAllObjects];
@@ -332,6 +339,8 @@
     PLVVodDownloadInfo *downloadInfo = self.downloadInfos[indexPath.row];
     
 #ifndef PLVSupportDownloadAudio
+    ///删除：正在下载中的
+    ///移除下载任务，并删除对应文件
     [downloadManager removeDownloadWithVid:downloadInfo.video.vid error:nil];
 #else
     // 使用音频下载功能的客户，调用如下方法
@@ -383,6 +392,7 @@
 - (void)handleStopDownloadVideo:(PLVVodDownloadInfo *)info{
     
 #ifndef PLVSupportDownloadAudio
+    ///单个暂停
     [[PLVVodDownloadManager sharedManager] stopDownloadWithVid:info.vid];
 #else
     // 使用音频下载功能的客户，调用如下方法
@@ -394,6 +404,7 @@
 - (void)handleStartDownloadVideo:(PLVVodDownloadInfo *)info{
     
 #ifndef PLVSupportDownloadAudio
+    ///单个开始
     [[PLVVodDownloadManager sharedManager] startDownloadWithVid:info.vid];
 #else
     // 使用音频下载功能的客户，调用如下方法
